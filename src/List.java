@@ -22,8 +22,11 @@ import javax.swing.event.TableModelListener;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 import org.omg.CORBA.Current;
 
@@ -126,7 +129,9 @@ public class List {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		tasks = new LinkedList<Task>();
+
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -223,6 +228,30 @@ public class List {
 
 			}
 		});
+		
+		try {
+			FileReader rr = new FileReader("ImportList.txt");
+			BufferedReader fr = new BufferedReader(rr);
+			String data = "";
+			while((data = fr.readLine()) != null) {
+				String[] allData = data.split(" ");
+				String[] currTime = allData[0].split(":");
+				int mins = Integer.parseInt(currTime[0]);
+				int secs = Integer.parseInt(currTime[1]);
+				int time = (mins * 60) + secs;
+				System.out.println(allData[0]);
+				System.out.println(allData[1]);
+				Task newTask = new Task(allData[1], allData[0], totalTime);
+				newTask.updateTime(time);
+				tasks.add(newTask);
+				((DefaultTableModel) table.getModel()).addRow(new Object[] { Boolean.FALSE, allData[1], allData[0] });
+			}
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
